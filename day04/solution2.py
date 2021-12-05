@@ -9,7 +9,7 @@ with open("input.txt") as fp:
 
         if line == '':
             if board is not None:
-                boards.append(board)
+                boards.append([board, False])
             board = []
             continue
 
@@ -21,7 +21,7 @@ with open("input.txt") as fp:
 
     
     if board != []:
-        boards.append(board)
+        boards.append([board, False])
 
 def add_move(board, m):
 	for row in range(5):
@@ -60,14 +60,23 @@ def test_win(b):
 	return False, None
 
 def move_boards(m):
-    for board in boards:
+    last_winner = None
+    last_win_sum = -1
+
+    for i, board_data in enumerate(boards):
+        board, has_won = board_data
+
+        if has_won: continue
+
         add_move(board, m)
         winner, win_sum = test_win(board)
 
         if winner:
-            return board, win_sum
+            board_data[1] = True
+            last_winner = board
+            last_win_sum = win_sum
 
-    return None, -1 
+    return last_winner, last_win_sum
 
 def get_board_total(b):
 	t = 0
@@ -82,9 +91,17 @@ def get_board_total(b):
 winning_board = None
 i = 0
 
+"""
 while winning_board is None and i < len(moves):
     winning_board, win_sum = move_boards(moves[i])
     if winning_board is not None: winning_move = moves[i]
+    i += 1
+"""
+while i < len(moves):
+    wb, win_sum = move_boards(moves[i])
+    if wb is not None:
+        winning_board = wb
+        winning_move = moves[i]
     i += 1
     
 assert(winning_board is not None)
