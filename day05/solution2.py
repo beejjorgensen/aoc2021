@@ -1,3 +1,5 @@
+sign = lambda x: -1 if x < 0 else (1 if x > 0 else 0)
+
 board = []
 
 for i in range(1000):
@@ -6,6 +8,7 @@ for i in range(1000):
 def draw_line(x0, y0, x1, y1):
 	if x1 < x0:
 		x0, x1 = x1, x0
+		y0, y1 = y1, y0
 
 	if y0 < y1:
 		ystep = 1
@@ -19,7 +22,10 @@ def draw_line(x0, y0, x1, y1):
 		for x in range(x0, x1 + 1):
 			board[y0][x] += 1
 	else:
-		pass
+		ycur = y0
+		for x in range(x0, x1 + 1):
+			board[ycur][x] += 1
+			ycur += ystep
 
 def count_highs():
 	high_count = 0
@@ -42,6 +48,15 @@ with open("input.txt") as fp:
 
 c = count_highs()
 
+"""
+for row in range(10):
+	for col in range(10):
+		v = board[row][col]
+		if v == 0: print(".", end="")
+		else: print(v, end="")
+	print()
+"""
+
 print(c)
-		
+
 
