@@ -1,3 +1,5 @@
+import math
+
 #INPUT="input1.txt"   # 17
 INPUT="input.txt"
 
@@ -24,6 +26,37 @@ def fold(axis, value):
     points.difference_update(remove_points)
     points.update(folded_points)
 
+def print_data():
+    minp = [math.inf, math.inf]
+    maxp = [-math.inf, -math.inf]
+
+    for p in points:
+        minp[0] = min(minp[0], p[0])
+        minp[1] = min(minp[1], p[1])
+        maxp[0] = max(maxp[0], p[0])
+        maxp[1] = max(maxp[1], p[1])
+
+    origin = (-minp[0], -minp[1])
+    width = maxp[0] - minp[0] + 1
+    height = maxp[1] - minp[1] + 1
+
+    bitmap = []
+
+    for _ in range(height):
+        row = ['.'] * width;
+        bitmap.append(row)
+
+    #print(minp, maxp)
+
+    for p in points:
+        x = p[0] + origin[0]
+        y = p[1] + origin[1]
+
+        bitmap[y][x] = "#"
+
+    for r in bitmap:
+        print("".join(r))
+
 with open(INPUT) as fp:
     section = 0
 
@@ -41,8 +74,7 @@ with open(INPUT) as fp:
             axis, value = line.split()[2].split("=")
             value = int(value)
             fold(axis, value)
-            break
 
 
-print(len(points))
+print_data()
 
