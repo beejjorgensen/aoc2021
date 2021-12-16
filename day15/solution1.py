@@ -27,55 +27,45 @@ dist = make_grid(math.inf)
 prev = make_grid(None)
 
 to_visit = MinHeap()
-to_visit_set = set()
 
-def get_unvisited_neighbors(r, c):
+def get_neighbors(r, c):
     neighbors = []
 
-    if (r-1,c) in to_visit_set:
+    if r > 0:
         neighbors.append((r-1, c))
 
-    if (r,c-1) in to_visit_set:
+    if c > 0:
         neighbors.append((r, c-1))
 
-    if (r+1,c) in to_visit_set:
+    if r < data_width - 1:
         neighbors.append((r+1, c))
 
-    if (r,c+1) in to_visit_set:
+    if c < data_width - 1:
         neighbors.append((r, c+1))
 
     return neighbors
-
-fdist = lambda x: dist[x[0]][x[1]]
 
 for r in range(data_height):
     for c in range(data_width):
         d = 0 if r == 0 and c == 0 else math.inf
         dist[r][c] = d
-        to_visit_set.add((r, c))
 
-to_visit.add((0,0), key=fdist)
+to_visit.add((0, (0,0)))
 
 while not to_visit.is_empty():
-    r, c = to_visit.remove(key=fdist)
+    d, (r, c) = to_visit.remove()
 
-    if (r,c) not in to_visit_set:
-        continue
-
-    to_visit_set.remove((r, c))
     d = dist[r][c]
     #print(f">>> Visiting {r} {c}, {d}")
 
-    for nr, nc in get_unvisited_neighbors(r, c):
+    for nr, nc in get_neighbors(r, c):
         new_dist = d + data[nr][nc]
         #print(f"Neighbor {nr},{nc}, old={dist[nr][nc]}, new={new_dist}")
         if new_dist < dist[nr][nc]:
             dist[nr][nc] = new_dist
             prev[nr][nc] = (r, c)
             #print("Setting")
-
-        if (nr,nc) in to_visit_set:
-            to_visit.add((nr, nc), key=fdist)
+            to_visit.add((new_dist, (nr, nc)))
 
 """
 for r in prev:
