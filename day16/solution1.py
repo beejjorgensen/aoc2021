@@ -18,6 +18,7 @@ def read_data(sample=None):
         4: "A0016C880162017C3686B18A3D4780", # 31
 
         'A': "d2fe28",                       # Literal 2021
+        'B': "38006f45291200",               # Op and literal 10 then 20
     }
 
     global data
@@ -32,52 +33,90 @@ def read_data(sample=None):
     else:
         hex_data = sample_map[sample]
 
-    data = f"{int(hex_data,16):b}"
+    data = ""
+
+    for d in hex_data:
+        data += f"{int(d, 16):04b}"
 
     return data
 
-def read_packet(data):
-    
-    version = int(data[0:3], 2)
-    type_id = int(data[3:6], 2)
+def value_of(data, offset=0):
 
-    print(version, type_id)
+    def ds(a, ln=1):
+        b = a + ln
+        print()
+        print(a, ln, b)
+        print(offset, a+offset, b+offset)
+        return int(data[offset+a:offset+b], 2)
+    
+    version = ds(0, 3)
+    type_id = ds(3, 3)  # operator
+    packet_len = 6
+
     if type_id == TYPE_LITERAL:
         have_more = 1
         pos = 0
         total = 0
 
         while have_more == 1:
-            have_more = int(data[6+5*pos])
-            value = int(data[6+5*pos+1:6+5*pos+5], 2)
+            have_more = ds(6 + 5 * pos)
+            value = ds(6 + 5 * pos + 1, 4)
             total <<= 4
             total |= value
             pos += 1
+            packet_len += 5
 
-        return total
+        return total, packet_len 
         
     # return operator on all subpackets, recursively
+    def compute_total(v):
+        nonlocal total
 
-    """
-    # operator
-    length_type = int(data[6], 2)
-    bits = length_bits[length_type]
-    subpacket_start = 7 + bits
-    length = int(data[7:subpacket_start], 2)
+        if total is None:
+            total = v
 
-    if length_type == LENGTH_TYPE_TOTAL:
-        read_packet_set(data[subpacket_start:subpacket_start + length])
+        else:
+            total += v  # TODO unhardcode operator
 
-    elif length_type == LENGTH_TYPE_COUNT:
-        for _ in range(length):
-    """
+    done = False
 
-    return None
+    length_type = ds(6)
+    length_bit_count = length_bits[length_type]
+    length = ds(7, length_bit_count)
 
-data = read_data('A')
+    packet_len += 1 + length_bit_count
+
+    total = None
+    count = 0
+
+    assert(length_type == LENGTH_TYPE_TOTAL or length_type == LENGTH_TYPE_COUNT)
+
+    while not done:
+        
+        if length_type == LENGTH_TYPE_TOTAL:
+            sub_value, sub_length = value_of(data, offset + packet_len)
+
+            packet_len += sub_length
+            compute_total(sub_value)
+
+            count += sub_length 
+            
+        elif length_type == LENGTH_TYPE_COUNT:
+            sub_value, sub_length = value_of(data, offset + packet_len)
+
+            packet_len += sub_length
+            compute_total(sub_value)
+
+            count += 1
+
+        done = count >= length
+
+    return total, packet_len
+
+data = read_data('B')
 print(data)
 
-t = read_packet(data)
+t, _ = value_of(data)
 
-print(t)
+print(t, _)
 
