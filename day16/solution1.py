@@ -18,7 +18,8 @@ def read_data(sample=None):
         4: "A0016C880162017C3686B18A3D4780", # 31
 
         'A': "d2fe28",                       # Literal 2021
-        'B': "38006f45291200",               # Op and literal 10 then 20
+        'B': "38006f45291200",               # Op and literal 10 then 20, length
+        'C': "EE00D40C823060",               # Op and 3 literals, count
     }
 
     global data
@@ -40,18 +41,23 @@ def read_data(sample=None):
 
     return data
 
+version_total = 0
+
 def value_of(data, offset=0):
 
     def ds(a, ln=1):
         b = a + ln
-        print()
-        print(a, ln, b)
-        print(offset, a+offset, b+offset)
+        #print()
+        #print(a, ln, b)
+        #print(offset, a+offset, b+offset)
         return int(data[offset+a:offset+b], 2)
     
     version = ds(0, 3)
     type_id = ds(3, 3)  # operator
     packet_len = 6
+
+    global version_total
+    version_total += version
 
     if type_id == TYPE_LITERAL:
         have_more = 1
@@ -92,31 +98,25 @@ def value_of(data, offset=0):
     assert(length_type == LENGTH_TYPE_TOTAL or length_type == LENGTH_TYPE_COUNT)
 
     while not done:
+        sub_value, sub_length = value_of(data, offset + packet_len)
+
+        packet_len += sub_length
+        compute_total(sub_value)
         
         if length_type == LENGTH_TYPE_TOTAL:
-            sub_value, sub_length = value_of(data, offset + packet_len)
-
-            packet_len += sub_length
-            compute_total(sub_value)
-
             count += sub_length 
             
         elif length_type == LENGTH_TYPE_COUNT:
-            sub_value, sub_length = value_of(data, offset + packet_len)
-
-            packet_len += sub_length
-            compute_total(sub_value)
-
             count += 1
 
         done = count >= length
 
     return total, packet_len
 
-data = read_data('B')
-print(data)
+data = read_data()
+#print(data)
 
 t, _ = value_of(data)
 
+print(version_total)
 print(t, _)
-
