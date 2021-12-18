@@ -1,5 +1,3 @@
-data = None
-
 TYPE_LITERAL = 0b100  # 4
 
 LENGTH_TYPE_TOTAL = 0b0
