@@ -28,18 +28,14 @@ operator = {
     7: lambda x: 1 if x[0] == x[1] else 0,
 }
 
-def read_data(sample=None):
+def read_data():
     global data
 
-    if sample is None:
-        INPUT = "input.txt"
+    INPUT = "input.txt"
 
-        fp = open(INPUT)
-        hex_data = fp.readline().strip()
-        fp.close()
-
-    else:
-        hex_data = sample_map[sample]
+    fp = open(INPUT)
+    hex_data = fp.readline().strip()
+    fp.close()
 
     data = ""
 
