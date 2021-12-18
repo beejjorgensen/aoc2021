@@ -29,8 +29,6 @@ operator = {
 }
 
 def read_data():
-    global data
-
     INPUT = "input.txt"
 
     fp = open(INPUT)
