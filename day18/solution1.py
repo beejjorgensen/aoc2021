@@ -34,3 +34,8 @@ r, _ = preorder(n)
 
 print(f"orig: {n}")
 print(f"copy: {r}")
+
+r2, _ = preorder(r)
+print(f"orig: {r}")
+print(f"copy: {r2}")
+
