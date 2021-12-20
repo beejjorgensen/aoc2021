@@ -1,4 +1,4 @@
-def preorder(n, depth=0, exploder=None):
+def explode(n, depth=0, exploder=None):
     # Leaf, check for right explosion
     if isinstance(n, int):
         result = n
@@ -16,8 +16,8 @@ def preorder(n, depth=0, exploder=None):
         exploder = n.copy()
         return 0, exploder
 
-    left, exploder = preorder(n[0], depth+1, exploder)
-    right, exploder = preorder(n[1], depth+1, exploder)
+    left, exploder = explode(n[0], depth+1, exploder)
+    right, exploder = explode(n[1], depth+1, exploder)
 
     # Check for previous explosion to propagate left
     if exploder is not None:
@@ -30,12 +30,14 @@ def preorder(n, depth=0, exploder=None):
 
 
 n = [[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]
-r, _ = preorder(n)
 
-print(f"orig: {n}")
-print(f"copy: {r}")
+while True:
+    r, e = explode(n)
 
-r2, _ = preorder(r)
-print(f"orig: {r}")
-print(f"copy: {r2}")
+    if e is None:
+        break
 
+    print(f"old: {n}")
+    print(f"new: {r}")
+
+    n = r
