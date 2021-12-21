@@ -26,18 +26,31 @@ def explode(n):
 
                 parent[my_index] = 0
 
-                #prev[prev_idx] += exploder[0]
+                print(f"Exploding {n}")
+                print(f"{prev} {prev_idx}")
+                if prev is not None:
+                    prev[prev_idx] += exploder[0]
+
                 return
-        
+
+        if isinstance(n[0], int):
+            prev = n
+            prev_idx = 0
+
         explode_r(n[0], n, 0, depth+1)
+
+        if isinstance(n[1], int):
+            prev = n
+            prev_idx = 1
+
         explode_r(n[1], n, 1, depth+1)
 
     explode_r(n)
 
     return exploded
 
-n = [[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]
-#n = [[[[[4,3],4],4],[7,[[8,4],9]]],[1,1]]
+#n = [[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]
+n = [[[[[4,3],4],4],[7,[[8,4],9]]],[1,1]]
 
 print(n)
 exploded = explode(n)
