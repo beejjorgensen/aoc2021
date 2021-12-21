@@ -1,43 +1,67 @@
-def explode(n, depth=0, exploder=None):
-    # Leaf, check for right explosion
-    if isinstance(n, int):
-        result = n
+def explode(n):
 
-        # Explode right
-        if exploder is not None:
-            result += exploder[1]
-            exploder[1] = 0  # Prevent subsequent adds
+    prev = None
+    exploder = None
+    exploded = False
 
-        return result, exploder
+    def set_prev(n):
+        nonlocal prev
 
-    if depth == 4 and exploder is None:
-        assert(isinstance(n[0], int) and isinstance(n[1], int))
-        print(f"Explode {n}")
-        exploder = n.copy()
-        return 0, exploder
+        if isinstance(n[0], int) or isinstance(n[1], int):
+            prev = n
 
-    left, exploder = explode(n[0], depth+1, exploder)
-    right, exploder = explode(n[1], depth+1, exploder)
+    def add_prev(v):
+        nonlocal prev
 
-    # Check for previous explosion to propagate left
-    if exploder is not None:
-        if isinstance(n[0], int):
-            # Explode left
-            left += exploder[0]
-            exploder[0] = 0  # Prevent subsequent adds
+        if isinstance(prev[1], int):
+            prev[1] += v
+        else:
+            prev[0] += v
 
-    return [left, right], exploder
+    def explode_r(n, depth=0):
+        nonlocal prev, exploder, exploded
+        
+        if isinstance(n, int):
+            return n, depth
 
+        if exploded:
+            if isinstance(n[0], int):
+                n[0] += exploder[1]
+                exploder[1] = 0
+
+            if isinstance(n[1], int):
+                n[1] += exploder[1]
+                exploder[1] = 0
+
+        set_prev(n)
+
+        if depth == 3 and not exploded:
+            exploder_index = None
+
+            if isinstance(n[0], list):
+                exploder_index = 0
+            elif isinstance(n[1], list):
+                exploder_index = 1
+
+
+            if exploder_index is not None:
+                exploded = True
+                exploder = n[exploder_index].copy()
+                add_prev(exploder[0])
+                n[exploder_index] = 0
+
+        explode_r(n[0], depth+1)
+        explode_r(n[1], depth+1)
+
+    explode_r(n)
+
+    return exploded
 
 n = [[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]
 
-while True:
-    r, e = explode(n)
+print(n)
+exploded = explode(n)
 
-    if e is None:
-        break
-
-    print(f"old: {n}")
-    print(f"new: {r}")
-
-    n = r
+while exploded:
+    print(n)
+    exploded = explode(n)
