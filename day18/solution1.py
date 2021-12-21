@@ -1,3 +1,29 @@
+def add_pair(a, b):
+    return [a, b]
+
+def split(n):
+    splitted = False
+
+    def split_r(n, parent=None, my_index=None):
+        nonlocal splitted
+
+        if splitted:
+            return
+
+        if isinstance(n, int):
+            if n > 9:
+                parent[my_index] = [n // 2, (n + 1) // 2]
+                splitted = True
+
+            return
+
+        split_r(n[0], n, 0)
+        split_r(n[1], n, 1)
+
+    split_r(n)
+
+    return splitted
+
 def explode(n):
 
     prev = None
@@ -11,6 +37,10 @@ def explode(n):
 
         if done:
             return
+
+        if parent is not None and isinstance(parent[my_index], int):
+            prev = parent 
+            prev_idx = my_index 
 
         if isinstance(n, int):
             if exploded:
@@ -26,23 +56,14 @@ def explode(n):
 
                 parent[my_index] = 0
 
-                print(f"Exploding {n}")
-                print(f"{prev} {prev_idx}")
+                #print(f"Exploding {n}")
+                #print(f"{prev} {prev_idx}")
                 if prev is not None:
                     prev[prev_idx] += exploder[0]
 
                 return
 
-        if isinstance(n[0], int):
-            prev = n
-            prev_idx = 0
-
         explode_r(n[0], n, 0, depth+1)
-
-        if isinstance(n[1], int):
-            prev = n
-            prev_idx = 1
-
         explode_r(n[1], n, 1, depth+1)
 
     explode_r(n)
@@ -51,10 +72,26 @@ def explode(n):
 
 #n = [[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]
 n = [[[[[4,3],4],4],[7,[[8,4],9]]],[1,1]]
+#n = [16, 13]
+
+done = False
 
 print(n)
-exploded = explode(n)
 
-while exploded:
-    print(n)
+while not done:
+
     exploded = explode(n)
+
+    while exploded:
+        print(f"Exploded: {n}")
+        exploded = explode(n)
+
+    splitted = False
+
+    if split(n):
+        print(f"Split: {n}")
+        splitted = True
+
+    done = not exploded and not splitted
+
+print(n)
