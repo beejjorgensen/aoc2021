@@ -1,4 +1,58 @@
+import sys
+
+filename = sys.argv[1]
+
+data = []
+
+def parse_line(line):
+    i = 0
+    sym = None
+
+    def accept(s):
+        nonlocal i, sym
+
+        if not isinstance(s, list):
+            s = list(s)
+
+        if line[i] in s:
+            sym = line[i]
+            i += 1
+            return True
+
+        return False
+
+    def expect(s):
+        if accept(s):
+            return True
+        print(f"Unexpected symbol: {line[i]}")
+        return False
+
+    def expression():
+        if accept('0123456789'):
+            return int(sym)
+        else:
+            return pair()
+
+    def pair():
+        expect('[')
+        left = expression()
+        expect(',')
+        right = expression()
+        expect(']')
+
+        return [left, right]
+
+    return pair()
+
+with open(filename) as fp:
+    for line in fp:
+        r = parse_line(line)
+        data.append(r)
+
 def add_pair(a, b):
+    if a is None:
+        return b
+
     return [a, b]
 
 def split(n):
@@ -71,27 +125,34 @@ def explode(n):
     return exploded
 
 #n = [[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]
-n = [[[[[4,3],4],4],[7,[[8,4],9]]],[1,1]]
+#n = [[[[[4,3],4],4],[7,[[8,4],9]]],[1,1]]
 #n = [16, 13]
 
-done = False
+n = None
 
-print(n)
+for d in data:
 
-while not done:
+    n = add_pair(n, d)
 
-    exploded = explode(n)
+    done = False
 
-    while exploded:
-        print(f"Exploded: {n}")
+    print(n)
+
+    while not done:
+
         exploded = explode(n)
 
-    splitted = False
+        while exploded:
+            print(f"Exploded: {n}")
+            exploded = explode(n)
 
-    if split(n):
-        print(f"Split: {n}")
-        splitted = True
+        splitted = False
 
-    done = not exploded and not splitted
+        if split(n):
+            print(f"Split: {n}")
+            splitted = True
+
+        done = not exploded and not splitted
 
 print(n)
+
