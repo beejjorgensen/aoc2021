@@ -1,63 +1,43 @@
 def explode(n):
 
     prev = None
+    prev_idx = None
     exploder = None
     exploded = False
+    done = False
 
-    def set_prev(n):
-        nonlocal prev
+    def explode_r(n, parent=None, my_index=None, depth=0):
+        nonlocal prev, prev_idx, exploder, exploded, done
 
-        if isinstance(n[0], int) or isinstance(n[1], int):
-            prev = n
+        if done:
+            return
 
-    def add_prev(v):
-        nonlocal prev
-
-        if isinstance(prev[1], int):
-            prev[1] += v
-        else:
-            prev[0] += v
-
-    def explode_r(n, depth=0):
-        nonlocal prev, exploder, exploded
-        
         if isinstance(n, int):
-            return n, depth
+            if exploded:
+                parent[my_index] += exploder[1]
+                done = True
 
-        if exploded:
-            if isinstance(n[0], int):
-                n[0] += exploder[1]
-                exploder[1] = 0
+            return
 
-            if isinstance(n[1], int):
-                n[1] += exploder[1]
-                exploder[1] = 0
-
-        set_prev(n)
-
-        if depth == 3 and not exploded:
-            exploder_index = None
-
-            if isinstance(n[0], list):
-                exploder_index = 0
-            elif isinstance(n[1], list):
-                exploder_index = 1
-
-
-            if exploder_index is not None:
+        if depth == 4 and not exploded:
+            if isinstance(n, list):
                 exploded = True
-                exploder = n[exploder_index].copy()
-                add_prev(exploder[0])
-                n[exploder_index] = 0
+                exploder = n.copy()
 
-        explode_r(n[0], depth+1)
-        explode_r(n[1], depth+1)
+                parent[my_index] = 0
+
+                #prev[prev_idx] += exploder[0]
+                return
+        
+        explode_r(n[0], n, 0, depth+1)
+        explode_r(n[1], n, 1, depth+1)
 
     explode_r(n)
 
     return exploded
 
 n = [[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]
+#n = [[[[[4,3],4],4],[7,[[8,4],9]]],[1,1]]
 
 print(n)
 exploded = explode(n)
