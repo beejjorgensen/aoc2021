@@ -124,9 +124,11 @@ def explode(n):
 
     return exploded
 
-#n = [[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]
-#n = [[[[[4,3],4],4],[7,[[8,4],9]]],[1,1]]
-#n = [16, 13]
+def magnitude(n):
+    if isinstance(n, int):
+        return n
+
+    return 3 * magnitude(n[0]) + 2 * magnitude(n[1])
 
 n = None
 
@@ -136,23 +138,24 @@ for d in data:
 
     done = False
 
-    print(n)
+    #print(n)
 
     while not done:
 
         exploded = explode(n)
 
         while exploded:
-            print(f"Exploded: {n}")
+            #print(f"Exploded: {n}")
             exploded = explode(n)
 
         splitted = False
 
         if split(n):
-            print(f"Split: {n}")
+            #print(f"Split: {n}")
             splitted = True
 
         done = not exploded and not splitted
 
-print(n)
+#print(n)
+print(magnitude(n))
 
